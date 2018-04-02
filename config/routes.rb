@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'users/new'
+
   get '/signup', to: 'users#new' #hoge_pathのhogeはuri
 
   root 'static_pages#home'
