@@ -1,0 +1,5 @@
+<%= provide(:title, "User#index") %>
+<% @user.each do |user| %>
+  <%= user.name %>
+  <%= user.email %>
+<% end %>
