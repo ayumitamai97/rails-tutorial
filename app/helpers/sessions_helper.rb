@@ -5,7 +5,19 @@ module SessionsHelper
 
   def current_user
     # ローカルメソッドだといちいちDBに問い合わせてしまうため、インスタンス変数に格納する
-    @current_user ||= User.find_by(id: session[:user_id]) # @current_userがnilならfind_byする
+    # @current_user ||= User.find_by(id: session[:user_id]) # @current_userがnilならfind_byする
+    # 以上だと永続セッションを扱えないので…
+
+    if (user_id = session[:user_id]) # セッションがすでに存在するなら
+      @current_user ||= User.find_by(id: user_id)
+    elsif (user_id = cookies.signed[:user_id]) # セッションが存在しないがクッキーが保存されているなら
+      user = User.find_by(id: user_id) # userをクッキーから定義
+      if user && user.authenticated?(cookies[:remember_token]) # tokenが一致するなら
+        log_in user # ログインできる！
+        @current_user = user
+      end
+    end
+
   end
 
   def logged_in?
@@ -13,7 +25,21 @@ module SessionsHelper
   end
 
   def log_out
+    forget(current_user)
     session.delete(:user_id)
     @current_user = nil
   end
+
+  def remember(user) # ユーザのセッションを永続的にする
+    user.remember
+    cookies.permanent.signed[:user_id] = user.id
+    cookies.permanent[:remember_token] = user.remember_token
+  end
+
+  def forget(user)
+    user.forget
+    cookies.delete(:user_id)
+    cookies.delete(:remember_token)
+  end
+
 end
