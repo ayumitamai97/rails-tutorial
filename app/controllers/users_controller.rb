@@ -23,14 +23,24 @@ class UsersController < ApplicationController
     end
   end
 
-  def edit
+  def edit # user作成のときのnewにあたる！
     @user = User.find(params[:id])
+  end
+
+  def update # user作成のときのcreateにあたる！
+    @user = User.find(params[:id])
+    if @user.update_attributes(user_params)
+      # hoge
+    else
+      render "edit"
+    end
   end
 
   private
 
     def user_params
       params.require(:user).permit(:name, :email, :password, :password_confirmation) # セキュリティ
+      # Strong Parametersを使ってマスアサインメントの脆弱性を防止
     end
 
 end
