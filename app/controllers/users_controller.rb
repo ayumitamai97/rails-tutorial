@@ -30,7 +30,8 @@ class UsersController < ApplicationController
   def update # user作成のときのcreateにあたる！
     @user = User.find(params[:id])
     if @user.update_attributes(user_params)
-      # hoge
+      flash[:success] = "Profile Updated" # flashはこうかく
+      redirect_to @user
     else
       render "edit"
     end

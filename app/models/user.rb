@@ -11,8 +11,10 @@ class User < ApplicationRecord
     format: { with: VALID_EMAIL_REGEX },
     # uniqueness: true # 一意性
     uniqueness: { case_sensitive: false } # 大文字小文字を区別しない # 一意性
-    validates :password, presence: true, length: { minimum: 6 }
+    validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
     has_secure_password
+    # 新規ユーザー登録時に空のパスワードが有効になってしまうのかと心配になるかもしれませんが、安心してください。6.3.3で説明したように、has_secure_passwordでは (追加したバリデーションとは別に) オブジェクト生成時に存在性を検証するようになっているため、空のパスワード (nil) が新規ユーザー登録時に有効になることはありません。(空のパスワードを入力すると存在性のバリデーションとhas_secure_passwordによるバリデーションがそれぞれ実行され、2つの同じエラーメッセージが表示されるというバグがありましたが (7.3.3)、これで解決できました。)
+
 
     class << self
       def digest(string) # self.digest(string)としてもよいが…
