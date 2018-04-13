@@ -15,5 +15,6 @@ class UsersEditTest < ActionDispatch::IntegrationTest
                                               password_confirmation: "bar" } }
 
     assert_template 'users/edit'
+    assert_select "div#error_explanation ul li", count: @user.errors.count
   end
 end
