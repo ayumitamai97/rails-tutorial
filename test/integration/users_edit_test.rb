@@ -3,10 +3,12 @@ require 'test_helper'
 class UsersEditTest < ActionDispatch::IntegrationTest
 
   def setup
-    @user = users(:michael)
+    @user = users(:michael) #fixtures
+    @other_user = users(:archer)
   end
 
   test "unsuccessful edit" do
+    log_in_as(@user)
     get edit_user_path(@user)
     assert_template 'users/edit'
     patch user_path(@user), params: { user: { name:  "",
@@ -18,6 +20,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
   end
 
   test "successful edit" do
+    log_in_as(@user)
     get edit_user_path(@user)
     assert_template "users/edit"
     name = "Foo Bar"
@@ -29,6 +32,32 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     # assert_equal expected, actual
     assert_equal name, @user.name # 入力した値, DBの値
     assert_equal email, @user.email # 入力した値, DBの値
+  end
+
+  test "should be redirected to login_url when not logged_in but tried to edit" do
+    get edit_user_path(@user) # users#edit
+    assert_not flash.empty?
+    assert_redirected_to login_url
+  end
+
+  test "should be redirected to login_url when not logged_in but tried to update" do
+    patch user_path(@user), params:{user:{name: @user.name, email: @user.email}} # users#update
+    assert_not flash.empty?
+    assert_redirected_to login_url
+  end
+
+  test "should be redirected to root when logged in as wrong user" do
+    log_in_as @other_user
+    get edit_user_path(@user) # users#edit
+    assert flash.empty?
+    assert_redirected_to root_url
+  end
+
+  test "should be redirected to root when logged in as a wrong user" do
+    log_in_as @other_user
+    patch user_path(@user), params: {user: {name: @user.name, email: @user.email}}
+    assert flash.empty?
+    assert_redirected_to root_url
   end
 
 end
