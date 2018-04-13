@@ -91,4 +91,9 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_equal email, @user.email # 入力した値, DBの値
   end
 
+  test "should be redirected to login when not logged in but attempted to access index" do
+    get users_path # users#index
+    assert_redirected_to login_url 
+  end
+
 end

@@ -1,9 +1,9 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:edit, :update] # どのアクションの前にbefore_action を適用するか
+  before_action :logged_in_user, only: [:index, :edit, :update] # どのアクションの前にbefore_action を適用するか
   before_action :correct_user, only: [:edit, :update] # パスがそれぞれedit_userとuserとなっており異なっているため、両方保護することが必要
 
   def index
-    @user = User.all
+    @users = User.paginate(page: params[:page])
   end
 
   def show
