@@ -60,4 +60,35 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
+  test "successful edit with friendly forwarding" do
+    get edit_user_path(@user)
+    log_in_as(@user)
+    assert_redirected_to edit_user_path(@user)
+    name = "Foo Bar"
+    email = "foo@bar.com"
+    patch user_path(@user), params: {user: {name: name, email: email, password: "", password_confirmation: ""}}
+    assert_not flash.empty? # パスワードを入力しなくてもエラーが出ない（これを目標にしたテスト駆動開発）
+    assert_redirected_to @user
+    @user.reload
+    # assert_equal expected, actual
+    assert_equal name, @user.name # 入力した値, DBの値
+    assert_equal email, @user.email # 入力した値, DBの値
+  end
+
+  test "forwarded only when first access" do
+    get edit_user_path(@user)
+    assert_equal session[:forwarding_url], edit_user_url(@user) # ログイン前に:forwarding_urlに保存される
+    log_in_as(@user) # ログインすると…
+    assert_nil session[:forwarding_url] # 消される！
+    name = "Foo Bar"
+    email = "foo@bar.com"
+    patch user_path(@user), params: {user: {name: name, email: email, password: "", password_confirmation: ""}}
+    assert_not flash.empty? # パスワードを入力しなくてもエラーが出ない（これを目標にしたテスト駆動開発）
+    assert_redirected_to @user
+    @user.reload
+    # assert_equal expected, actual
+    assert_equal name, @user.name # 入力した値, DBの値
+    assert_equal email, @user.email # 入力した値, DBの値
+  end
+
 end
