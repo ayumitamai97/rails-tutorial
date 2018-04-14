@@ -43,4 +43,19 @@ module SessionsHelper
     cookies.delete(:remember_token)
   end
 
+  def current_user?(user)
+    user == current_user
+  end
+
+  def redirect_back_or(default) # 記憶したURLもしくはデフォルト値にリダイレクト
+    # フォワーディングの実装に必要
+    redirect_to(session[:forwarding_url] || default)
+    session.delete(:forwarding_url) # 一回格納したものを消しておく
+  end
+
+  def store_location
+    session[:forwarding_url] = request.original_url if request.get? # requestオブジェクトというものが存在する
+    # this means getリクエストが送られてきたときだけ〜〜
+  end
+
 end

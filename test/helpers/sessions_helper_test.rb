@@ -1,6 +1,7 @@
-require "test_helper"
+require 'test_helper'
 
 class SessionsHelperTest < ActionView::TestCase
+
   def setup
     @user = users(:michael) # fixtureから
     remember(@user) # 定義したメソッドでrememberしている！！！
@@ -18,5 +19,4 @@ class SessionsHelperTest < ActionView::TestCase
     @user.update_attribute(:remember_digest, User.digest(User.new_token))
     assert_nil current_user
   end
-
 end
