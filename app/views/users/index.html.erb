@@ -3,11 +3,6 @@
 <%= will_paginate %><!--users#indexに.paginateメソッドを追加しないと使えない！-->
 
 <ul class="users">
-  <% @users.each do |user| %>
-    <li>
-      <%= gravatar_for user, size: 50 %>
-      <%= link_to user.name, user %>
-    </li>
-  <% end %>
+  <%= render @users %><!--Railsではいろいろ推測してくれるので@users.eachがいらない！！-->
 </ul>
 <%= will_paginate %><!--上下にページネーションをおくと便利！-->
