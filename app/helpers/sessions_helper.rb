@@ -13,7 +13,7 @@ module SessionsHelper
     elsif (user_id = cookies.signed[:user_id]) # セッションが存在しないがクッキーが保存されているなら
       # raise # 敢えて例外処理を入れてみてテストが妥当か確かめる
       user = User.find_by(id: user_id) # userをクッキーから定義
-      if user && user.authenticated?(cookies[:remember_token]) # tokenが一致するなら
+      if user && user.authenticated?(:remember, cookies[:remember_token]) # tokenが一致するなら
         log_in user # ログインできる！
         @current_user = user
       end

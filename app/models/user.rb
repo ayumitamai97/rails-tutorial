@@ -36,10 +36,13 @@ class User < ApplicationRecord
       # remember_tokenはpasswordのようなもの、remember_digestはpassword_digestのようなもの
     end
 
-    def authenticated?(remember_token)
-      return false if remember_digest.nil? # browserダブり対策
+    # consoleでユーザ作成時は`user.remember_token = User.new_token`でトークン生成
+    # remember_digest生成のためには、user.update_attribute(:remember_digest, User.digest(user.remember_token))
+    def authenticated?(attribute, token)
+      digest = send("#{attribute}_digest")
+      return false if digest.nil? # browserダブり対策
       # 一度forget=logoutされたらauthenticatedと判断されないようにする
-      BCrypt::Password.new(remember_digest).is_password?(remember_token)
+      BCrypt::Password.new(digest).is_password?(token)
     end
 
     def forget # 記憶トークンの破棄
@@ -49,7 +52,7 @@ class User < ApplicationRecord
 
     private
       def downcase_email
-        email.downcase! 
+        email.downcase!
       end
       def create_activation_digest
         self.activation_token = User.new_token
