@@ -12,6 +12,6 @@ Rails.application.routes.draw do
   delete '/logout', to: 'sessions#destroy'
 
   resources :users
-   # ユーザー情報を表示するURL (/users/1) を追加するためだけのものではありません。サンプルアプリケーションにこの１行を追加すると、ユーザーのURLを生成するための多数の名前付きルート (5.3.3) と共に、RESTfulなUsersリソースで必要となるすべてのアクションが利用できるようになるのです。
-   resources :account_activations, only: [:edit]
+  # ユーザー情報を表示するURL (/users/1) を追加するためだけのものではありません。サンプルアプリケーションにこの１行を追加すると、ユーザーのURLを生成するための多数の名前付きルート (5.3.3) と共に、RESTfulなUsersリソースで必要となるすべてのアクションが利用できるようになるのです。
+  resources :account_activations, only: [:edit]
 end
