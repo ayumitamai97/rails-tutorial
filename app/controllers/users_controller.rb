@@ -18,7 +18,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params) # セキュリティ
     if @user.save
-      UserMailer.account_activation(@user).deliver_now
+      @user.send_activation_email # user.rbで定義した
       flash[:info] = "Please check your email to activate your account."
       redirect_to root_url
     else
@@ -28,7 +28,6 @@ class UsersController < ApplicationController
 
   def edit # user作成のときのnewにあたる！
     @user = User.find(params[:id])
-
   end
 
   def update # user作成のときのcreateにあたる！
