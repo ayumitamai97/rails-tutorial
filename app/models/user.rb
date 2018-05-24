@@ -45,7 +45,7 @@ class User < ApplicationRecord
     end
 
     # consoleでユーザ作成時は`user.remember_token = User.new_token`でトークン生成
-    # remember_digest生成のためには、user.update_attribute(:remember_digest, User.digest(user.remember_token))  
+    # remember_digest生成のためには、user.update_attribute(:remember_digest, User.digest(user.remember_token))
 
     def authenticated?(attribute, token)
       digest = send("#{attribute}_digest")
@@ -62,6 +62,15 @@ class User < ApplicationRecord
       UserMailer.password_reset(self).deliver_now
     end
 
+    def password_reset_expired?
+      reset_sent_at < 2.hours.ago
+    end
+
+    def create_reset_digest
+      self.reset_token = User.new_token # reset_tokenを定義
+      update_columns(reset_digest: User.digest(reset_token), reset_sent_at: Time.zone.now)
+    end
+
     private
       def downcase_email
         email.downcase!
@@ -71,9 +80,4 @@ class User < ApplicationRecord
         self.activation_digest = User.digest(activation_token)
       end
 
-      def create_reset_digest
-        self.reset_token = User.new_token # reset_tokenを定義
-        update_attribute(:reset_digest,  User.digest(reset_token))
-        update_attribute(:reset_sent_at, Time.zone.now)
-      end
 end
