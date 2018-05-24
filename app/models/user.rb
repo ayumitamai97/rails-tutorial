@@ -20,8 +20,7 @@ class User < ApplicationRecord
     # 新規ユーザー登録時に空のパスワードが有効になってしまうのかと心配になるかもしれませんが、安心してください。6.3.3で説明したように、has_secure_passwordでは (追加したバリデーションとは別に) オブジェクト生成時に存在性を検証するようになっているため、空のパスワード (nil) が新規ユーザー登録時に有効になることはありません。(空のパスワードを入力すると存在性のバリデーションとhas_secure_passwordによるバリデーションがそれぞれ実行され、2つの同じエラーメッセージが表示されるというバグがありましたが (7.3.3)、これで解決できました。)
 
     def activate
-      update_attribute(:activated, true)
-      update_attribute(:activated_at, Time.zone.now)
+      update_columns(activated: true, activated_at: Time.zone.now)
     end
 
     def send_activation_email

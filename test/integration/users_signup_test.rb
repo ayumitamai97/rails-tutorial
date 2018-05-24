@@ -57,4 +57,20 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     assert is_logged_in?
   end
 
+  # test "only shows activated accounts" do
+  #   get signup_path
+  #   post users_path, params: {user: {name: "Example", email: "user@example.com", password: "password", password_confirmation: "password"}}
+  #   user = assigns(:user)
+  #   log_in_as(user)
+  #   get users_path
+  #   get edit_account_activation_path(user.activation_token, email: user.email)
+  #   assert user.reload.activated?
+  #   log_in_as(user)
+  #   assert is_logged_in?
+  #   get users_path
+  #   assert_template 'users/index'
+  #   assert_difference "User.count", "User.where(activated: true).count"
+  # わからん
+  # end
+
 end
