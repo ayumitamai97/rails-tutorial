@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token, :reset_token
   # クラスやモジュールにインスタンス変数を読み書きするためのアクセサメソッドを定義
   # update_attributeのため
 
@@ -45,7 +45,8 @@ class User < ApplicationRecord
     end
 
     # consoleでユーザ作成時は`user.remember_token = User.new_token`でトークン生成
-    # remember_digest生成のためには、user.update_attribute(:remember_digest, User.digest(user.remember_token))
+    # remember_digest生成のためには、user.update_attribute(:remember_digest, User.digest(user.remember_token))  
+
     def authenticated?(attribute, token)
       digest = send("#{attribute}_digest")
       return false if digest.nil? # browserダブり対策
@@ -57,14 +58,22 @@ class User < ApplicationRecord
       update_attribute(:remember_digest, nil)
     end
 
+    def send_password_reset_email # パスワード再設定のメールを送信する
+      UserMailer.password_reset(self).deliver_now
+    end
 
     private
       def downcase_email
         email.downcase!
       end
       def create_activation_digest
-        self.activation_token = User.new_token
+        self.activation_token  = User.new_token
         self.activation_digest = User.digest(activation_token)
       end
 
+      def create_reset_digest
+        self.reset_token = User.new_token # reset_tokenを定義
+        update_attribute(:reset_digest,  User.digest(reset_token))
+        update_attribute(:reset_sent_at, Time.zone.now)
+      end
 end
