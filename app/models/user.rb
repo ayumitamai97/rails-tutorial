@@ -72,6 +72,11 @@ class User < ApplicationRecord
       update_columns(reset_digest: User.digest(reset_token), reset_sent_at: Time.zone.now)
     end
 
+    def feed
+      Micropost.where("user_id = ?", id)
+      # 上の疑問符があることで、SQLクエリに代入する前にidがエスケープされるため、SQLインジェクション (SQL Injection) と呼ばれる深刻なセキュリティホールを避けることができます。この場合のid属性は単なる整数 (すなわちself.idはユーザーのid) であるため危険はありませんが、SQL文に変数を代入する場合は常にエスケープする習慣をぜひ身につけてください。
+    end
+
     private
       def downcase_email
         email.downcase!
