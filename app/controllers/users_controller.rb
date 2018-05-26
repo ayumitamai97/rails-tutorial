@@ -9,7 +9,9 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    redirect_to root_url and return unless @user.activated?
+    @microposts = @user.microposts.paginate(page: params[:page])
+    # redirect_to root_url and return unless @user.activated?
+    # not-activated userはそもそもindexに表示されないようにしたため不要
   end
 
   def new
@@ -52,14 +54,6 @@ class UsersController < ApplicationController
     def user_params
       params.require(:user).permit(:name, :email, :password, :password_confirmation) # セキュリティ
       # Strong Parametersを使ってマスアサインメントの脆弱性を防止
-    end
-
-    def logged_in_user # ログイン済みユーザかどうか確認
-      unless logged_in?
-        store_location # ユーザがアクセスしたかったURLを:forwarding_urlキーに格納しておく
-        flash[:danger] = "Please log in."
-        redirect_to login_path
-      end
     end
 
     def correct_user # current_userとの比較

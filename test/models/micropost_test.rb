@@ -25,4 +25,9 @@ class MicropostTest < ActiveSupport::TestCase
     assert_not @micropost.valid?
   end
 
+  test "order should be most recent first" do
+    assert_equal microposts(:most_recent), Micropost.first
+    # most_recentはfixture内でつくる
+  end
+
 end

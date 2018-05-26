@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  has_many :microposts
+  has_many :microposts, dependent: :destroy # userが消されるとmicropostも消される
   attr_accessor :remember_token, :activation_token, :reset_token
   # クラスやモジュールにインスタンス変数を読み書きするためのアクセサメソッドを定義
   # update_attributeのため
