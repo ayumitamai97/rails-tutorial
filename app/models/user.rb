@@ -1,5 +1,12 @@
 class User < ApplicationRecord
   has_many :microposts, dependent: :destroy # userが消されるとmicropostも消される
+
+  # followingsはactive relationships
+  has_many :active_relationships, class_name: "Relationship", foreign_key: "follower_id", dependent: :destroy
+
+  # followersはpassive relationships
+  has_many :passive_relationships, class_name: "Relationship", foreign_key: "followed_id", dependent: :destroy
+
   attr_accessor :remember_token, :activation_token, :reset_token
   # クラスやモジュールにインスタンス変数を読み書きするためのアクセサメソッドを定義
   # update_attributeのため
@@ -10,7 +17,6 @@ class User < ApplicationRecord
   # 多くの場合、各メソッド内で重複する動作をまとめるために使う
   validates :name, presence: true, length: { maximum: 50 }
 
-
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true, length: { maximum: 255 },
     format: { with: VALID_EMAIL_REGEX },
@@ -19,6 +25,9 @@ class User < ApplicationRecord
     validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
     has_secure_password
     # 新規ユーザー登録時に空のパスワードが有効になってしまうのかと心配になるかもしれませんが、安心してください。6.3.3で説明したように、has_secure_passwordでは (追加したバリデーションとは別に) オブジェクト生成時に存在性を検証するようになっているため、空のパスワード (nil) が新規ユーザー登録時に有効になることはありません。(空のパスワードを入力すると存在性のバリデーションとhas_secure_passwordによるバリデーションがそれぞれ実行され、2つの同じエラーメッセージが表示されるというバグがありましたが (7.3.3)、これで解決できました。)
+
+    has_many :following, through: :active_relationships, source: :followed # user.followingを使うため
+    has_many :followers, through: :passive_relationships, source: :follower # user.followingを使うため
 
     def activate
       update_columns(activated: true, activated_at: Time.zone.now)
@@ -75,6 +84,20 @@ class User < ApplicationRecord
     def feed
       Micropost.where("user_id = ?", id)
       # 上の疑問符があることで、SQLクエリに代入する前にidがエスケープされるため、SQLインジェクション (SQL Injection) と呼ばれる深刻なセキュリティホールを避けることができます。この場合のid属性は単なる整数 (すなわちself.idはユーザーのid) であるため危険はありませんが、SQL文に変数を代入する場合は常にエスケープする習慣をぜひ身につけてください。
+    end
+
+    def follow(other_user)
+      active_relationships.create(followed_id: other_user.id)
+    end
+
+    # ユーザーをフォロー解除する
+    def unfollow(other_user)
+      active_relationships.find_by(followed_id: other_user.id).destroy
+    end
+
+    # 現在のユーザーがフォローしてたらtrueを返す
+    def following?(other_user)
+      following.include?(other_user)
     end
 
     private

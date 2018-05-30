@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:index, :edit, :update, :destroy] # どのアクションの前にbefore_action を適用するか
+  before_action :logged_in_user, only: [:index, :edit, :update, :destroy, :following, :followers] # どのアクションの前にbefore_action を適用するか
   before_action :correct_user, only: [:edit, :update] # パスがそれぞれedit_userとuserとなっており異なっているため、両方保護することが必要
   before_action :admin_user, only: :destroy
 
@@ -47,6 +47,22 @@ class UsersController < ApplicationController
     User.find(params[:id]).destroy
     flash[:success] = "Successfully deleted"
     redirect_to users_url
+  end
+
+  # pathに使いたいメソッドはコントローラで定義する
+  # 逆に、pathに使わないメソッドはモデルで定義することが多い
+  def following
+    @title = "Following"
+    @user  = User.find(params[:id])
+    @users = @user.following.paginate(page: params[:page])
+    render 'show_follow'
+  end
+
+  def followers
+    @title = "Followers"
+    @user  = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
   end
 
   private

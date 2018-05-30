@@ -18,8 +18,14 @@ class UsersProfileTest < ActionDispatch::IntegrationTest
     @user.microposts.paginate(page: 1).each do |micropost|
       assert_match micropost.content, response.body
     end
-
     # response.bodyについて
     # そのページの完全なHTMLが含まれています (HTMLのbodyタグだけではありません)。したがって、そのページのどこかしらにマイクロポストの投稿数が存在するのであれば、次のように探し出してマッチできるはずです。
+  end
+
+  test "home display" do
+    log_in_as(@user)
+    get root_path
+    assert_select "strong#followers"
+    assert_select "strong#following"
   end
 end
