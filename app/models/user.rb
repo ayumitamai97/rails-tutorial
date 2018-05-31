@@ -82,8 +82,24 @@ class User < ApplicationRecord
     end
 
     def feed
-      Micropost.where("user_id = ?", id)
+      # Micropost.where("user_id IN (?) OR user_id = ?", following_ids, id)
       # 上の疑問符があることで、SQLクエリに代入する前にidがエスケープされるため、SQLインジェクション (SQL Injection) と呼ばれる深刻なセキュリティホールを避けることができます。この場合のid属性は単なる整数 (すなわちself.idはユーザーのid) であるため危険はありませんが、SQL文に変数を代入する場合は常にエスケープする習慣をぜひ身につけてください。
+
+      # User.first.following_ids は  User.first.following.map(&:id)と同値
+      # User[i].following_idsそれぞれのMicropostsを探すアクション
+
+
+      # 上の色々を効率化するために置換（集合のロジックを (Railsではなく) データベース内に保存するので、より効率的にデータを取得する）
+      # whereメソッド内の変数に、キーと値のペアを使う
+
+      following_ids = "SELECT followed_id FROM relationships WHERE  follower_id = :user_id"
+      Micropost.where("user_id IN (#{following_ids}) OR user_id = :user_id", following_ids: following_ids, user_id: id)
+
+      # 最終的なSQLは以下
+      # SELECT * FROM microposts
+      # WHERE user_id IN (SELECT followed_id FROM relationships
+      #                   WHERE  follower_id = 1)
+      #       OR user_id = 1
     end
 
     def follow(other_user)
